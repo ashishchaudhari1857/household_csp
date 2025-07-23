@@ -1,100 +1,55 @@
 import axios from 'axios';
-import _ from "lodash";
 
-const API = axios.create({
-  baseURL: 'https://jsonplaceholder.typicode.com',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5000/api';
 
-async function apiRequest({
-  method,
-  path,
-  params,
-  body,
-  authToken,
-  apiVersion,
-}) {
-
-  console.log('Environment Variable:', process.env.REACT_APP_API_BASE_URL)
-  const baseUrl = _.defaultTo(
-    process.env.REACT_APP_API_BASE_URL,
-    "http://127.0.0.1:5000",
-  );
-
-  let fullPath;
-  const path_http = path.startsWith("https");
-  if (path_http) {
-    fullPath = path;
-  } else {
-    if (!_.isNil(apiVersion)) {
-      fullPath = `${baseUrl}/api/${apiVersion}${path}`;
-    } else {
-      fullPath = `${baseUrl}/api${path}`;
-    }
-  }
-
-  const headers = {
-    "Content-Type": "application/json",
-    "X-Client-Id": "xxx",
-  };
-
-  if (authToken) {
-    headers["Authorization"] = `Bearer ${authToken}`;
-  }
-
-  // Remove undefined and null values from params
-  const cleanedParams = _.pickBy(params, (value) => value !== undefined && value !== null);
-
+export const get = async (url, token) => {
   try {
-    const startTime = performance.now();
-    const response = await API.request({
-      url: fullPath,
-      method,
-      headers,
-      params: cleanedParams, // Automatically handles query params
-      data: body, // Automatically handles JSON body
+    const res = await axios.get(`${API_BASE}${url}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-    const endTime = performance.now();
-
-    console.info("apiRequest", {
-      method,
-      fullPath,
-      status: response.status,
-      took: Math.round(endTime - startTime),
-    });
-
-    let { data } = response;
-    if (data && _.has(data, "data")) {
-      // If response has a nested "data" field, unwrap it
-      data = data.data;
-    }
-
-    return { status: response.status, data };
-  } catch (error) {
-    const status = error.response?.status || 500;
-    console.error("apiRequest Error", { method, fullPath, status, error: error.message });
-    return { status, data: error.response?.data || null };
+    console.log('GET', url, res.data);
+    return res.data;
+  } catch (err) {
+    console.error('GET', url, err.response?.data || err.message);
+    throw err;
   }
-}
+};
 
-// Reusable HTTP methods (GET, POST, PUT)
-export async function post(authToken, path, body = null, apiVersion = "v1") {
-  return apiRequest({ method: "POST", apiVersion, path, body, authToken });
-}
+export const post = async (url, data, token) => {
+  try {
+    const res = await axios.post(`${API_BASE}${url}`, data, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    console.log('POST', url, data, res.data);
+    return res.data;
+  } catch (err) {
+    console.error('POST', url, data, err.response?.data || err.message);
+    throw err;
+  }
+};
 
-export async function put(authToken, path, body = null, apiVersion = "v1") {
-  return apiRequest({ method: "PUT", apiVersion, path, body, authToken });
-}
+export const patch = async (url, data, token) => {
+  try {
+    const res = await axios.patch(`${API_BASE}${url}`, data, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    console.log('PATCH', url, data, res.data);
+    return res.data;
+  } catch (err) {
+    console.error('PATCH', url, data, err.response?.data || err.message);
+    throw err;
+  }
+};
 
-export async function get(authToken, path, params = null, apiVersion = "v1") {
-  return apiRequest({ method: "GET", apiVersion, path, params, authToken });
-}
-
-// Export the HTTP methods for use in your app
-export default {
-  get,
-  post,
-  put,
+export const del = async (url, token) => {
+  try {
+    const res = await axios.delete(`${API_BASE}${url}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    console.log('DELETE', url, res.data);
+    return res.data;
+  } catch (err) {
+    console.error('DELETE', url, err.response?.data || err.message);
+    throw err;
+  }
 };
