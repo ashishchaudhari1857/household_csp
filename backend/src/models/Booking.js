@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../utils/db.js';
+import User from './User.js';
 
 const Booking = sequelize.define('Booking', {
   customerId: { type: DataTypes.INTEGER, allowNull: false },
@@ -10,5 +11,9 @@ const Booking = sequelize.define('Booking', {
   scheduledAt: { type: DataTypes.DATE, allowNull: false },
   amount: { type: DataTypes.DECIMAL(10,2), allowNull: false }
 });
+
+Booking.belongsTo(User, { foreignKey: 'customerId', as: 'customer' });
+Booking.belongsTo(User, { foreignKey: 'providerId', as: 'provider' });
+Booking.belongsTo(User, { foreignKey: 'servicemanId', as: 'serviceman' });
 
 export default Booking;
