@@ -1,9 +1,9 @@
+import jwt from 'jsonwebtoken';
+
 export const signToken = (payload) => {
-  // TODO: Implement JWT sign
-  return 'token';
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
 export const verifyToken = (token) => {
-  // TODO: Implement JWT verify
-  return { id: 1, role: 'admin' };
+  return jwt.verify(token, process.env.JWT_SECRET);
 };
