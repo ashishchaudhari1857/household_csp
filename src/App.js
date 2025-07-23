@@ -2,6 +2,12 @@ import "./App.css";
 import Login from "./components/auth/Login";
 import { get, post } from "./services/base";
 import { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import PrivateRoute from './components/auth/PrivateRoute';
+import AdminDashboard from './pages/admin/Dashboard';
+import ProviderDashboard from './pages/provider/Dashboard';
+import ServicemanDashboard from './pages/serviceman/Dashboard';
+import CustomerDashboard from './pages/customer/Dashboard';
 
 function App() {
   async function createPost(authToken) {
@@ -51,9 +57,30 @@ function App() {
     }
   }, []);
   return (
-    <div>
-      <Login />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/admin/dashboard" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </PrivateRoute>
+        } />
+        <Route path="/provider/dashboard" element={
+          <PrivateRoute allowedRoles={['provider']}>
+            <ProviderDashboard />
+          </PrivateRoute>
+        } />
+        <Route path="/serviceman/dashboard" element={
+          <PrivateRoute allowedRoles={['serviceman']}>
+            <ServicemanDashboard />
+          </PrivateRoute>
+        } />
+        <Route path="/customer/dashboard" element={
+          <PrivateRoute allowedRoles={['customer']}>
+            <CustomerDashboard />
+          </PrivateRoute>
+        } />
+      </Routes>
+    </Router>
   );
 }
 
